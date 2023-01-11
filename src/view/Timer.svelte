@@ -2,8 +2,8 @@
   import { onDestroy } from 'svelte';
   // import Select from 'svelte-select/no-styles/Select.svelte';
   import Select from 'svelte-select';
-  import { connect, projects, tags, entries, sync, token, saveNewEntry, saveOldEntry, stopTogglTimer} from './toggl';
-  import { formatTime, caculateDuration} from './tool';
+  import { is_offline, connect, projects, tags, entries, sync, token, saveNewEntry, saveOldEntry, stopTogglTimer} from '../lib/toggl';
+  import { formatTime, caculateDuration} from '../lib/tool';
   import { moment } from "obsidian";
 
   // 編輯類參數
@@ -180,7 +180,10 @@
     {#if !$token}
       <!-- 初始化 -->
       <input type="text" placeholder="請輸入 toggl token" class="form-control" bind:value={new_token}>
-      <button on:click={checkToken}>連線</button>
+      <button on:click={checkToken} style="width: 100%">Connect</button>
+    {:else if $is_offline}
+      <div>目前離線中</div>
+      <button on:click={sync} style="width: 100%">Reconnect</button>
     {:else}
       <!-- 計時器 -->
       <div id="running-timer">
@@ -378,6 +381,7 @@
   .form-control {
     box-sizing: border-box;
     width: 100%;
+    margin-bottom: 0.5rem;
   }
   #btn-start {
     width: 100%;
@@ -391,6 +395,9 @@
     align-items: center;
     border-top: 1px solid gray;
     padding: .7rem 0;
+  }
+  .btn {
+    margin-right: 0.5rem;
   }
   .btn-play {
     width: 1rem;

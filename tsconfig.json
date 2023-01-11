@@ -18,6 +18,6 @@
   },
   "include": [
     "**/*.ts",
-    "src/view/toggl.js"
+    "src/lib/toggl.js"
   ]
 }

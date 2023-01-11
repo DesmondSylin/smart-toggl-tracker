@@ -1,4 +1,4 @@
-import { requestUrl } from 'obsidian';
+import { requestUrl, Notice } from 'obsidian';
 
 import { get } from 'svelte/store';
 import { localStore } from './store';
@@ -9,18 +9,57 @@ export const workspaces = localStore("workspaces", []);
 export const entries = localStore("entries", []);
 export const token = localStore('token', '');
 export const workspace_id = localStore('workspace_id', 0);
+export const is_offline = localStore('', false);
 
 const url = 'https://api.track.toggl.com';
+function handleConnectError(err) {
+  if (err?.status) {
+    if (err.status == 429) {
+      new Notice('Toggl has too many requests')
+    } else if (err.status == 500) {
+      new Notice('Toggl Service is shutdown');
+    } else if (err.status == 403) {
+      new Notice('Toggl token is not valid');
+      logout();
+    } else {
+      new Notice(`Unknow Error: ${err.status}`);
+    }
+  } else {
+    if (err.message === "net::ERR_NAME_NOT_RESOLVED") {
+      new Notice(`Network is down`);
+      is_offline.set(true);
+    } else {
+      new Notice(`Unknow Connect Error: ${err?.message}`);
+    }
+  }
+  throw err;
+}
+
+async function fetchUrl(payload) {
+  if (!payload?.headers) {
+    payload['headers'] = {
+      "Content-Type": "application/json",
+      "Authorization": `Basic ${btoa(`${get(token)}:api_token`)}`
+    }
+  }
+  return requestUrl(payload)
+    .then(res => {
+      is_offline.set(false);
+      return res.json
+    })
+    .catch(handleConnectError);
+}
+
+
 export function connect(new_token) {
-  return requestUrl({
+  return fetchUrl({
     url: `${url}/api/v9/me`,
     method: 'GET',
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Basic ${btoa(`${new_token}:api_token`)}`
     }
-  }).then(result => {
-    const res = result.json;
+  }).then(res => {
     if (res?.default_workspace_id) {
       token.set(res.api_token);
       workspace_id.set(res.default_workspace_id);
@@ -32,15 +71,10 @@ export function connect(new_token) {
 
 
 export function getProjects() {
-  return requestUrl({
+  return fetchUrl({
     url: `${url}/api/v9/me/projects`,
-    method: 'GET',
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Basic ${btoa(`${get(token)}:api_token`)}`
-    }
-  }).then(result => {
-    raw_projects = result.json;
+    method: 'GET'
+  }).then(raw_projects => {
     projects.set(raw_projects)
     return raw_projects;
   });
@@ -48,15 +82,10 @@ export function getProjects() {
 
 
 export function getTags() {
-  return requestUrl({
+  return fetchUrl({
     url: `${url}/api/v9/me/tags`,
-    method: 'GET',
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Basic ${btoa(`${get(token)}:api_token`)}`
-    }
-  }).then(result => {
-    raw_tags = result.json;
+    method: 'GET'
+  }).then(raw_tags => {
     tags.set(raw_tags);
     return raw_tags
   });
@@ -64,15 +93,10 @@ export function getTags() {
 
 
 export function getClients() {
-  return requestUrl({
+  return fetchUrl({
     url: `${url}/api/v9/me/clients`,
-    method: 'GET',
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Basic ${btoa(`${get(token)}:api_token`)}`
-    }
-  }).then(result => {
-    raw_clients = result.json;
+    method: 'GET'
+  }).then(raw_clients => {
     clients.set(raw_clients);
     return raw_clients
   });
@@ -80,15 +104,10 @@ export function getClients() {
 
 
 export function getWorkspaces() {
-  return requestUrl({
+  return fetchUrl({
     url: `${url}/api/v9/me/all_workspaces`,
-    method: 'GET',
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Basic ${btoa(`${get(token)}:api_token`)}`
-    }
-  }).then(result => {
-    const raw_workspaces = result.json;
+    method: 'GET'
+  }).then(raw_workspaces => {
     workspaces.set(raw_workspaces);
     return raw_workspaces
   });
@@ -102,15 +121,10 @@ export function getEntries() {
   before.setMinutes(0);
   before.setSeconds(0);
 
-  return requestUrl({
+  return fetchUrl({
     url: `${url}/api/v9/me/time_entries?since=${Math.floor(before.valueOf() / 1000)}`,
-    method: 'GET',
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Basic ${btoa(`${get(token)}:api_token`)}`
-    }
-  }).then(result => {
-    const raw_entries = result.json;
+    method: 'GET'
+  }).then(raw_entries => {
     const new_entries = raw_entries.sort((a,b) => {
       if (a.start < b.start) return 1;
       if (a.start > b.start) return -1;
@@ -131,11 +145,13 @@ export function sync() {
     console.error('尚未設定token');
     return;
   }
-  getProjects();
-  getClients();
-  getTags();
-  getWorkspaces();
-  getEntries();
+  Promise.all([
+    getProjects(),
+    getClients(),
+    getTags(),
+    getWorkspaces(),
+    getEntries()
+  ]);
 }
 
 
@@ -169,13 +185,9 @@ export function saveNewEntry(entry) {
     payload.stop = null;
   }
 
-  return requestUrl({
+  return fetchUrl({
     url: `${url}/api/v9/workspaces/${this_workspace_id}/time_entries`,
     method: 'POST',
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Basic ${btoa(`${get(token)}:api_token`)}`
-    },
     body:JSON.stringify(payload)
   });
 }
@@ -186,22 +198,14 @@ export async function stopTogglTimer() {
    * 停止計時器
    */
   const this_token = get(token);
-  const current_timer = await requestUrl({
+  const current_timer = await fetchUrl({
     url: `${url}/api/v9/me/time_entries/current`,
     method: 'GET',
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Basic ${btoa(`${this_token}:api_token`)}`
-    },
-  }).json;
+  });
   if (!current_timer?.id) return;
-  return requestUrl({
+  return fetchUrl({
     url: `${url}/api/v9/workspaces/${current_timer.workspace_id}/time_entries/${current_timer.id}/stop`,
-    method: 'PATCH',
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Basic ${btoa(`${this_token}:api_token`)}`
-    }
+    method: 'PATCH'
   });
 }
 
@@ -230,13 +234,9 @@ export async function saveOldEntry(entry) {
     payload.duration = -1 * Math.floor(start.getTime() / 1000);
     payload.stop = null;
   }
-  return requestUrl({
+  return fetchUrl({
     url: `${url}/api/v9/workspaces/${this_workspace_id}/time_entries/${entry.id}`,
     method: 'PUT',
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Basic ${btoa(`${this_token}:api_token`)}`
-    },
     body: JSON.stringify(payload)
   })
 }
@@ -269,4 +269,15 @@ export function checkCandidate({description, candidate_projects = []}) {
     exist_toggl_entries,
     exist_toggl_projects
   }
+}
+
+
+export function logout() {
+  token.set('');
+  projects.set([]);
+  tags.set([]);
+  clients.set([]);
+  workspaces.set([]);
+  entries.set([]);
+  workspace_id.set(0);
 }

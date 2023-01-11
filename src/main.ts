@@ -4,7 +4,7 @@ import { TimerView, VIEW_TYPE_TIMER } from "./view";
 // Remember to rename these classes and interfaces!
 import { SuggestEntriesModal } from "./SuggestModal"
 
-import { sync as SyncToggl, stopTogglTimer, checkCandidate } from "./view/toggl";
+import { sync as SyncToggl, stopTogglTimer, checkCandidate } from "./lib/toggl";
 
 interface SmartTogglTrackerPluginSettings {
   mySetting: string;
@@ -28,8 +28,6 @@ export default class SmartTogglTrackerPlugin extends Plugin {
 		} else {
 			this.app.workspace.onLayoutReady(this.initLeaf.bind(this));
 		}
-    await this.loadSettings();
-
 
     this.addCommand({
       id: 'show-tracker',

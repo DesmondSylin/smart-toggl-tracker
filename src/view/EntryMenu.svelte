@@ -2,7 +2,7 @@
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
 
-    import { saveNewEntry, sync } from './toggl';
+    import { saveNewEntry, sync } from '../lib/toggl';
     import EntryMenuItem from './EntryMenuItem.svelte';
 
     // export let modal;

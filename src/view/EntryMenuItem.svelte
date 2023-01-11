@@ -1,5 +1,5 @@
 <script>
-    import { projects } from './toggl';
+    import { projects } from '../lib/toggl';
 
     export let entry = {};
     $: project = entry?.project_id ? $projects.find(p => p.id == entry.project_id) : null;
