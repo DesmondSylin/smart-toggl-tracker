@@ -125,11 +125,11 @@ export function getEntries() {
     url: `${url}/api/v9/me/time_entries?since=${Math.floor(before.valueOf() / 1000)}`,
     method: 'GET'
   }).then(raw_entries => {
-    const new_entries = raw_entries.sort((a,b) => {
+    const new_entries = raw_entries.filter(entry => !entry.server_deleted_at).sort((a,b) => {
       if (a.start < b.start) return 1;
       if (a.start > b.start) return -1;
       return 0;
-    })
+    });
     entries.set(new_entries);
     return new_entries;
   });
@@ -197,7 +197,6 @@ export async function stopTogglTimer() {
   /**
    * 停止計時器
    */
-  const this_token = get(token);
   const current_timer = await fetchUrl({
     url: `${url}/api/v9/me/time_entries/current`,
     method: 'GET',

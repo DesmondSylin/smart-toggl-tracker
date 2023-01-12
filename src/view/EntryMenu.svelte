@@ -15,7 +15,7 @@
     $: suggested_tags = use_tag ? exist_tags : [];
     $: no_project_entry = {
         description,
-        suggested_tags,
+        tags: suggested_tags,
     }
     $: suggested_entries = makeSuggestion(exist_projects, suggested_tags);
     function makeSuggestion(projects, tags) {
@@ -25,7 +25,7 @@
                 project_id: p.id,
                 tags,
             }
-        })
+        });
     }
 
     function start(entry) {
@@ -37,16 +37,16 @@
 
 <div id="smart-toggl-tracker-menulist">
     {#if exist_entries?.length}
-    <h2>近期計時</h2>
+    <h2>Recently</h2>
     {#each exist_entries as entry }
         <div on:click={() => start(entry)} on:keydown={() => console.log('test')}>
             <EntryMenuItem entry={entry}></EntryMenuItem>
         </div>
     {/each}
     {/if}
-    <h2>推薦計時</h2>
+    <h2>Recommand:</h2>
     <div>
-        <input type="checkbox" bind:checked={use_tag} /> 是否使用標籤
+        <input type="checkbox" bind:checked={use_tag} /> Use tag?
     </div>
     {#each suggested_entries as entry }
         <div on:click={() => start(entry)} on:keydown={() => console.log('test')}>
