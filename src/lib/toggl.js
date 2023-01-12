@@ -10,6 +10,8 @@ export const entries = localStore("entries", []);
 export const token = localStore('token', '');
 export const workspace_id = localStore('workspace_id', 0);
 export const is_offline = localStore('', false);
+export const is_debug = localStore('', true);
+
 
 const url = 'https://api.track.toggl.com';
 function handleConnectError(err) {
@@ -145,7 +147,7 @@ export function sync() {
     console.error('尚未設定token');
     return;
   }
-  Promise.all([
+  return Promise.all([
     getProjects(),
     getClients(),
     getTags(),
@@ -264,6 +266,10 @@ export function checkCandidate({description, candidate_projects = []}) {
     const this_project = get(projects).find(p => p.name === project_name);
     if (this_project && !exist_toggl_projects.find(p => p.id === this_project.id)) exist_toggl_projects.push(this_project);
     if(exist_toggl_projects.length === 5) break;
+  }
+  if (get(is_debug)) {
+    console.log('驗證projects', candidate_projects, exist_toggl_projects);
+    console.log('驗證entries', exist_toggl_entries);
   }
   return {
     exist_toggl_entries,

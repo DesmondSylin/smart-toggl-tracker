@@ -2,7 +2,7 @@
   import { onDestroy } from 'svelte';
   // import Select from 'svelte-select/no-styles/Select.svelte';
   import Select from 'svelte-select';
-  import { is_offline, connect, projects, tags, entries, sync, token, saveNewEntry, saveOldEntry, stopTogglTimer} from '../lib/toggl';
+  import { is_offline, connect, projects, tags, entries, sync, token, saveNewEntry, saveOldEntry, stopTogglTimer, is_debug} from '../lib/toggl';
   import { formatTime, caculateDuration} from '../lib/tool';
   import { moment } from "obsidian";
 
@@ -62,7 +62,7 @@
     const days = [];
     for (const entry of entries) {
       if (!entry?.stop) continue;
-      const date = entry.at.split('T')[0];
+      const date = new Date(entry.start).toLocaleDateString();
       if (!days.find(day => day.date == date)) {
         days.push({date, entries: [], total: 0});
       }
@@ -73,6 +73,7 @@
         all_week_duration += entry.duration;
       }
     }
+    console.log(days);
     return days;
   }
 
@@ -270,11 +271,13 @@
       </div>
 
       <!-- 除錯訊息區 -->
-      <div>Description : {description ? description : '(no description)'}</div>
-      <div>Select Project ID : {select_project ? select_project.name : ''}</div>
-      <div>Select tags :{select_tags ? JSON.stringify(select_tags.map(tag => tag.value)) : ''}</div>
-      <div>Start: {start}</div>
-      <div>Stop: {stop}</div>
+      {#if $is_debug}
+        <div>Description : {description ? description : '(no description)'}</div>
+        <div>Select Project ID : {select_project ? select_project.name : ''}</div>
+        <div>Select tags :{select_tags ? JSON.stringify(select_tags.map(tag => tag.value)) : ''}</div>
+        <div>Start: {start}</div>
+        <div>Stop: {stop}</div>
+      {/if}
 
       <!-- 近期計時列表 -->
       <hr />

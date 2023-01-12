@@ -2,7 +2,7 @@
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
 
-    import { saveNewEntry, sync } from '../lib/toggl';
+    import { saveNewEntry, sync, is_debug } from '../lib/toggl';
     import EntryMenuItem from './EntryMenuItem.svelte';
 
     // export let modal;
@@ -37,25 +37,30 @@
 
 <div id="smart-toggl-tracker-menulist">
     {#if exist_entries?.length}
-    <h2>近期計時</h2>
+        <h2>近期計時</h2>
     {#each exist_entries as entry }
         <div on:click={() => start(entry)} on:keydown={() => console.log('test')}>
             <EntryMenuItem entry={entry}></EntryMenuItem>
         </div>
     {/each}
     {/if}
-    <h2>推薦計時</h2>
-    <div>
-        <input type="checkbox" bind:checked={use_tag} /> 是否使用標籤
-    </div>
+        <h2>推薦計時</h2>
+        <div>
+            <input type="checkbox" bind:checked={use_tag} /> 是否使用標籤
+        </div>
     {#each suggested_entries as entry }
         <div on:click={() => start(entry)} on:keydown={() => console.log('test')}>
             <EntryMenuItem entry={entry}></EntryMenuItem>
         </div>
     {/each}
-    <div on:click={() => start(no_project_entry)} on:keydown={() => console.log('test')}>
-        <EntryMenuItem entry={no_project_entry}></EntryMenuItem>
-    </div>
+        <div on:click={() => start(no_project_entry)} on:keydown={() => console.log('test')}>
+            <EntryMenuItem entry={no_project_entry}></EntryMenuItem>
+        </div>
+    {#if $is_debug}
+        <div>Exist Projects:{JSON.stringify(exist_projects)}</div>
+        <div>Exist Tags:{JSON.stringify(exist_tags)}</div>
+        <div>Exist Entries:{JSON.stringify(exist_entries)}</div>
+    {/if}
 </div>
 
 <style>
