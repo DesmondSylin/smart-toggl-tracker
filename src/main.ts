@@ -235,6 +235,7 @@ export default class SmartTogglTrackerPlugin extends Plugin {
         }
       }
     }
+
     return {
       description,
       candidate_projects: candidate_projects,

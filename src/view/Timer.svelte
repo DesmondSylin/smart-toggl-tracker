@@ -301,7 +301,7 @@
                   {#if entry.tags}
                   <div>
                     {#each entry.tags as tag }
-                    <small style="color:var(--text-highlight-bg)">#{tag}</small>
+                    <small class="tag">#{tag}</small>
                     {/each}
                   </div>
                   {/if}
@@ -398,6 +398,17 @@
     align-items: center;
     border-top: 1px solid gray;
     padding: .7rem 0;
+  }
+  .entry .tag {
+    background-color: var(--tag-background);
+    border: var(--tag-border-width) solid var(--tag-border-color);
+    border-radius: var(--tag-radius);
+    color: var(--tag-color);
+    font-size: var(--tag-size);
+    text-decoration: var(--tag-decoration);
+    padding: var(--tag-padding-y) var(--tag-padding-x);
+    line-height: 1;
+    margin-right: 0.5rem;
   }
   .btn {
     margin-right: 0.5rem;
