@@ -8,10 +8,12 @@ import { sync as SyncToggl, stopTogglTimer, checkCandidate } from "./lib/toggl";
 
 interface SmartTogglTrackerPluginSettings {
   mySetting: string;
+  toggl_debug: boolean;
 }
 
 const DEFAULT_SETTINGS: SmartTogglTrackerPluginSettings = {
-  mySetting: 'default'
+  mySetting: 'default',
+  toggl_debug: false,
 }
 
 export default class SmartTogglTrackerPlugin extends Plugin {
@@ -161,7 +163,7 @@ export default class SmartTogglTrackerPlugin extends Plugin {
 
     const cursor = editor.getCursor();
     const this_line = cursor.line;
-    const this_line_content = editor.getLine(this_line);
+    const this_line_content = editor.getLine(this_line).trim();
     const is_listItem = this_line_content.startsWith('- ') || this_line_content.startsWith('- [ ]');
 
     // Description
@@ -180,7 +182,7 @@ export default class SmartTogglTrackerPlugin extends Plugin {
     // 標題處理
     if (metadata.headings && metadata.headings.length > 0) {
       let max_level = 6;
-      for (let index = metadata.headings.length - 1 ; index > 0; index--) {
+      for (let index = metadata.headings.length - 1 ; index >= 0; index--) {
         const heading = metadata.headings[index];
 
         if (heading.position.start.line >= this_line) continue;
@@ -194,9 +196,10 @@ export default class SmartTogglTrackerPlugin extends Plugin {
     // 清單處理
     if (metadata.listItems && is_listItem) {
       let last_parent = this_line;
-      for (let index = metadata.listItems.length - 1; index > 0; index--) {
+      for (let index = metadata.listItems.length - 1; index >= 0; index--) {
         const list_item = metadata.listItems[index];
         const this_item_line = list_item.position.start.line;
+
         // 先找到目前這行的資訊
         if (this_item_line > last_parent) continue;
         // 如果上個找到的母項目不存在就跳出
@@ -217,7 +220,7 @@ export default class SmartTogglTrackerPlugin extends Plugin {
     if (file.parent) {
       let last_path = file.parent;
       while (last_path.path !== '/' && last_path?.parent) {
-        candidate_projects.push(last_path.parent.name);
+        candidate_projects.push(last_path.name);
         last_path = last_path.parent;
       }
     }
@@ -235,6 +238,7 @@ export default class SmartTogglTrackerPlugin extends Plugin {
         }
       }
     }
+    console.log('description', description);
 
     return {
       description,
@@ -261,8 +265,8 @@ class MySettingTab extends PluginSettingTab {
     containerEl.createEl('h2', { text: 'Settings for my awesome plugin.' });
 
     new Setting(containerEl)
-      .setName('Setting #1')
-      .setDesc('It\'s a secret')
+      .setName('Toggl Token')
+      .setDesc('Toggl User Token')
       .addText(text => text
         .setPlaceholder('Enter your secret')
         .setValue(this.plugin.settings.mySetting)
@@ -271,6 +275,18 @@ class MySettingTab extends PluginSettingTab {
           this.plugin.settings.mySetting = value;
           await this.plugin.saveSettings();
         }));
+
+    // new Setting(containerEl)
+    //   .setName('Setting #1')
+    //   .setDesc('It\'s a secret')
+    //   .addText(text => text
+    //     .setPlaceholder('Enter your secret')
+    //     .setValue(this.plugin.settings.mySetting)
+    //     .onChange(async (value) => {
+    //       console.log('Secret: ' + value);
+    //       this.plugin.settings.mySetting = value;
+    //       await this.plugin.saveSettings();
+    //     }));
   }
 }
 
@@ -280,5 +296,8 @@ function cleanContent(content: string) {
   let result = content.trim();
   if (result.startsWith('- [ ] ')) result = result.split('- [ ] ')[1]
   else if (result.startsWith('- ')) result = result.split('- ')[1]
+  console.log('項目清理：原始', content);
+  console.log('項目清理：清理後', result);
+
   return result;
 }

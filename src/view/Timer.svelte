@@ -18,6 +18,7 @@
   let editing_entry_id = 0;
   let timer_id = 0;
   let all_week_duration = 0;
+  let is_loading = false;
 
   // 時間列表
   $: projects_dict = new Map($projects.map(p => [p.id, p]));
@@ -73,7 +74,6 @@
         all_week_duration += entry.duration;
       }
     }
-    console.log(days);
     return days;
   }
 
@@ -166,6 +166,11 @@
     return saveNewEntry(payload).then(() => sync());
   }
 
+  function cancalTimerEditing() {
+    resetFields();
+    is_editing = false;
+  }
+
   // 輔助函式
   function checkToken() {
     connect(new_token);
@@ -173,21 +178,25 @@
   function logout() {
     token.set("");
   }
+  function syncData() {
+    is_loading = true;
+    sync().finally(() => is_loading = false);
+  }
 </script>
 
-<div>
+<div id="smart-toggl-tracker-timer" class="smart-toggl-tracker">
   <div class="container">
     <!-- 初始狀態 -->
     {#if !$token}
       <!-- 初始化 -->
-      <input type="text" placeholder="請輸入 toggl token" class="form-control" bind:value={new_token}>
+      <input type="text" placeholder="請輸入 toggl token" class="form-control w-100" bind:value={new_token}>
       <button on:click={checkToken} style="width: 100%">Connect</button>
     {:else if $is_offline}
-      <div>目前離線中</div>
-      <button on:click={sync} style="width: 100%">Reconnect</button>
+      <div>No network</div>
+      <button class="btn" on:click={sync} style="width: 100%">Reconnect</button>
     {:else}
       <!-- 計時器 -->
-      <div id="running-timer">
+      <div class="running-timer">
         {#if running_entry}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <div class="timer-detail" on:click={editEntry(running_entry)}>
@@ -218,13 +227,18 @@
         </div>
         {/if}
       </div>
-
+      <hr />
       <!-- 計時器編輯台 -->
       {#if is_editing}
       <div class="timer-editing">
+        {#if !editing_entry_id}
+          <h4>New Timer</h4>
+        {:else}
+          <h4>Editing Timer</h4>
+        {/if}
         <input
           type="text"
-          class="form-control space-bottom"
+          class="form-control"
           bind:value={description}
           placeholder="Description"
         />
@@ -262,12 +276,19 @@
           <label for="field-end">Stop at:</label>
           <input id="field-end" type="datetime-local" step="1" bind:value={stop}>
         </div>
+        <div class="btns">
+          <button class="btn" on:click={cancalTimerEditing}>Cancel</button>
+          <button class="btn" on:click={saveTimer}>Save</button>
+        </div>
       </div>
-      <button id="btn-start" class="btn" on:click={saveTimer}>Save</button>
       {/if}
       <div style="display:flex;margin-top: 1rem">
-        <button class="btn" on:click={sync}>同步</button>
-        <button class="btn" on:click={logout}>登出帳號</button>
+        {#if !is_loading}
+          <button class="btn" on:click={syncData}>Sync</button>
+        {:else}
+          <span>同步中...</span>
+        {/if}
+        <button class="btn" on:click={logout}>Logout</button>
       </div>
 
       <!-- 除錯訊息區 -->
@@ -344,97 +365,8 @@
     padding: 0.5rem;
     margin-bottom: 0.5rem;
   }
-  #running-timer {
-    display: flex;
-    align-items: center;
-    height: 3rem;
-    background-color: var(--primary-bg-color);
-    color: white;
-  }
-  .timer-detail, .timer-clock {
-    padding: 0.5rem;
-  }
-  .timer-clock {
-    margin-left: auto;
-  }
-  .timer-empty {
-    display: flex;
-    align-items: center;
-    padding: 1rem;
-    flex: 1 1;
-  }
-  .running-timer-stop {
-    width: 3rem;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #ff897a;
-    cursor: pointer;
-  }
-  .running-timer-stop svg {
-    width: 1.5rem;
-  }
-  .timer-editing {
-    margin-top: 1rem;
-  }
-  input {
-    padding: 1rem 0.5rem;
-  }
-  .form-control {
-    box-sizing: border-box;
-    width: 100%;
-    margin-bottom: 0.5rem;
-  }
-  #btn-start {
-    width: 100%;
-    padding: 0.5rem 0;
-  }
   .list-entries{
     margin-top: 1rem;
-  }
-  .entry {
-    display: flex;
-    align-items: center;
-    border-top: 1px solid gray;
-    padding: .7rem 0;
-  }
-  .entry .tag {
-    background-color: var(--tag-background);
-    border: var(--tag-border-width) solid var(--tag-border-color);
-    border-radius: var(--tag-radius);
-    color: var(--tag-color);
-    font-size: var(--tag-size);
-    text-decoration: var(--tag-decoration);
-    padding: var(--tag-padding-y) var(--tag-padding-x);
-    line-height: 1;
-    margin-right: 0.5rem;
-  }
-  .btn {
-    margin-right: 0.5rem;
-  }
-  .btn-play {
-    width: 1rem;
-    margin-left: 0.3rem;
-    opacity: 0.1;
-    cursor: pointer;
-    transition: opacity 0.5s ease;
-  }
-  .btn-play svg {
-    display: flex;
-    color: rgb(255, 131, 131);
-  }
-  .day {
-    border: 1px solid rgb(214, 214, 214);
-    padding: 1rem;
-    margin-top: 1rem;
-  }
-  .day-detail {
-    display: flex;
-    justify-content: space-between;
-  }
-  .day-detail-total {
-    font-weight: 900;
   }
   .entry-duration {
     margin-left: auto;

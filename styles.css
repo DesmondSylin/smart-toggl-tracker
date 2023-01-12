@@ -6,3 +6,121 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+/* component */
+.smart-toggl-tracker .w-100 {
+  width: 100%;
+}
+.smart-toggl-tracker .btn {
+  margin-right: 0.5rem;
+}
+.smart-toggl-tracker .btns {
+  display: flex;
+}
+.smart-toggl-tracker .btns .btn {
+  margin-right: 0.5rem;
+  flex: 1 1;
+}
+.smart-toggl-tracker .btns .btn:last-child {
+  margin-right: 0;
+}
+.smart-toggl-tracker .form-control {
+  box-sizing: border-box;
+  margin-bottom: 0.5rem;
+}
+/* timer */
+#smart-toggl-tracker-timer .running-timer {
+  display: flex;
+  align-items: stretch;
+  min-height: 3rem;
+  background-color: var(--primary-bg-color);
+  color: white;
+}
+#smart-toggl-tracker-timer .timer-detail,
+#smart-toggl-tracker-timer .timer-clock {
+  padding: 0.5rem;
+}
+#smart-toggl-tracker-timer .timer-clock {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+#smart-toggl-tracker-timer .timer-empty {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  flex: 1 1;
+}
+#smart-toggl-tracker-timer .running-timer-stop {
+  width: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-bg-color);
+  background-color: var(--interactive-accent);
+  cursor: pointer;
+}
+#smart-toggl-tracker-timer .running-timer-stop svg {
+  width: 1.5rem;
+}
+
+#smart-toggl-tracker-timer .btn-play {
+  width: 1rem;
+  margin-left: 0.3rem;
+  opacity: 0.1;
+  cursor: pointer;
+  transition: opacity 0.5s ease;
+}
+#smart-toggl-tracker-timer .btn-play svg {
+  display: flex;
+  color: rgb(255, 131, 131);
+}
+
+/* entry editing */
+#smart-toggl-tracker-timer .timer-editing {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: var(--background-primary);
+}
+#smart-toggl-tracker-timer .timer-editing h4 {
+  margin: 0;
+}
+#smart-toggl-tracker-timer .timer-editing input {
+  margin-bottom: 0.5rem;
+  width: 100%;
+  padding: 1rem 0.5rem;
+}
+
+/* entry list */
+#smart-toggl-tracker-timer .day {
+  margin-top: 1rem;
+  background-color: var(--background-primary);
+}
+#smart-toggl-tracker-timer .day-detail {
+  display: flex;
+  justify-content: space-between;
+  padding: .7rem 1rem;
+}
+#smart-toggl-tracker-timer .day-detail-total {
+  font-weight: 900;
+}
+
+#smart-toggl-tracker-timer .entry {
+  display: flex;
+  align-items: center;
+  border-top: 1px solid var(--background-modifier-border);
+  padding: .7rem 1rem;
+}
+#smart-toggl-tracker-timer .entry:hover {
+  background-color: var(--interactive-hover);
+}
+#smart-toggl-tracker-timer .entry .tag{
+  background-color: var(--tag-background);
+  border: var(--tag-border-width) solid var(--tag-border-color);
+  border-radius: var(--tag-radius);
+  color: var(--tag-color);
+  font-size: var(--tag-size);
+  text-decoration: var(--tag-decoration);
+  padding: var(--tag-padding-y) var(--tag-padding-x);
+  line-height: 1;
+  margin-right: 0.5rem;
+}

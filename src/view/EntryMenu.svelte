@@ -56,11 +56,11 @@
         <div on:click={() => start(no_project_entry)} on:keydown={() => console.log('test')}>
             <EntryMenuItem entry={no_project_entry}></EntryMenuItem>
         </div>
-    {#if $is_debug}
+    <!-- {#if $is_debug}
         <div>Exist Projects:{JSON.stringify(exist_projects)}</div>
         <div>Exist Tags:{JSON.stringify(exist_tags)}</div>
         <div>Exist Entries:{JSON.stringify(exist_entries)}</div>
-    {/if}
+    {/if} -->
 </div>
 
 <style>

@@ -10,7 +10,7 @@ export const entries = localStore("entries", []);
 export const token = localStore('token', '');
 export const workspace_id = localStore('workspace_id', 0);
 export const is_offline = localStore('', false);
-export const is_debug = localStore('', true);
+export const is_debug = localStore('', false);
 
 
 const url = 'https://api.track.toggl.com';
