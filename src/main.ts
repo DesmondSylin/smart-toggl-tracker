@@ -113,6 +113,7 @@ export default class SmartTogglTrackerPlugin extends Plugin {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
     token.set(this.settings.token);
     is_debug.set(this.settings.debug_mode);
+    if (!this.settings.debug_mode)  SyncToggl();
   }
 
   async saveSettings() {
