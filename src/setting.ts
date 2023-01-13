@@ -39,7 +39,7 @@ export class MySettingTab extends PluginSettingTab {
         .setPlaceholder('Enter your secret')
         .setValue('')
         .onChange(async (value) => {
-          this.temp_token = value;
+          this.temp_token = value.trim();
         }))
       .addButton((button: ButtonComponent) => {
         button.setButtonText('Connect');

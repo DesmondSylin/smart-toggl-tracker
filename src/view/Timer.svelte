@@ -19,11 +19,13 @@
   let timer_id = 0;
   let all_week_duration = 0;
   let is_loading = false;
+  let show_days = 2;
 
   // 時間列表
   $: projects_dict = new Map($projects.map(p => [p.id, p]));
   $: running_entry = $entries.find(entry => !entry?.stop);
   $: days = makeDayEntries($entries);
+  $: entries_daylist = days.slice(0, show_days);
   $: all_tags = $tags.map(tag => tag.name);
   $: {
     if (timer_id && !running_entry) {
@@ -291,7 +293,7 @@
       {/if}
       <div style="display:flex;margin-top: 1rem">
         {#if !is_loading}
-          <button class="btn w-100" on:click={syncData}>Sync</button>
+          <button class="w-100" on:click={syncData}>Sync</button>
         {:else}
           <span>同步中...</span>
         {/if}
@@ -311,7 +313,7 @@
       <div class="list-entries">
         {#if days?.length > 0}
           <div>THIS WEEK: {formatTime(all_week_duration, false)}</div>
-          {#each days as day}
+          {#each entries_daylist as day}
             <div class="day">
               <div class="day-detail">
                 <div>{day.date}</div>
@@ -344,8 +346,11 @@
               {/each}
             </div>
           {/each}
+          {#if days.length > show_days}
+            <button class="w-100" on:click={ () => show_days += 1 }>Show more...</button>
+          {/if}
         {/if}
-      </div>`
+      </div>
     {/if}
   </div>
 </div>
