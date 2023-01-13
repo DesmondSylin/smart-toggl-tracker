@@ -84,11 +84,164 @@ If your plugin does not need CSS, delete this file.
 #smart-toggl-tracker-timer .timer-editing h4 {
   margin: 0;
 }
-#smart-toggl-tracker-timer .timer-editing input {
-  margin-bottom: 0.5rem;
+#smart-toggl-tracker-timer .timer-editing input{
   width: 100%;
-  padding: 1rem 0.5rem;
 }
+#smart-toggl-tracker-timer .timer-editing input[type="datetime-local"]{
+  background: var(--background-modifier-form-field);
+  border: var(--input-border-width) solid var(--background-modifier-border);
+  color: var(--text-normal);
+}
+
+
+/* entry selecting */
+.svelte-select {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  background: var(--background-modifier-form-field);
+  width: 100%;
+  border-radius: var(--input-radius);
+  border: var(--input-border-width) solid var(--background-modifier-border);
+}
+.svelte-select input{
+  border: 0;
+  width: auto!important;
+  background: transparent;
+}
+.svelte-select input:focus{
+  box-shadow: none;
+}
+.svelte-select .value-container {
+  display: flex;
+  flex: 1 1 0%;
+  flex-wrap: wrap;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  align-self: stretch;
+
+}
+.svelte-select .prepend,
+.svelte-select .indicators {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+}
+.svelte-select .icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.svelte-select .clear-select {
+  all: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 100%;
+  margin: var(--clear-select-margin, 0);
+  pointer-events: all;
+  flex-shrink: 0;
+}
+.svelte-select .clear-select:focus {
+  outline: var(--clear-select-focus-outline, 1px solid #006fe8);
+}
+.svelte-select .chevron {
+  width: 2rem;
+  height: 1rem;
+  border: 0 0 0 1px solid #d8dbdf;
+  flex-shrink: 0;
+}
+
+.svelte-select .a11y-text {
+  display: none;
+}
+.svelte-select .svelte-select-list {
+  /* box-shadow: var(--list-shadow, 0 2px 3px 0 rgba(44, 62, 80, 0.24)); */
+  border-radius: 4px;
+  max-height: 50vh;
+  overflow-y: auto;
+  background: var(--interactive-normal);
+  position: absolute;
+  z-index: 2;
+  border: var(--background-modifier-border-focus);
+}
+.item {
+  cursor: default;
+  height: var(--item-height, var(--height, 42px));
+  line-height: var(--item-line-height, var(--height, 42px));
+  padding: var(--item-padding, 0 20px);
+  color: var(--item-color, inherit);
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: var(--item-transition, all 0.2s);
+  align-items: center;
+  width: 100%;
+}
+.item.group-item {
+  padding-left: var(--group-item-padding-left, 40px);
+}
+.item.active {
+  background: var(--interactive-hover);
+}
+.item.first {
+  border-radius: var(--item-first-border-radius, 4px 4px 0 0);
+}
+.item.hover:not(.active) {
+  background: var(--interactive-hover);
+  cursor: pointer;
+}
+.item.not-selectable,
+.item.hover.item.not-selectable,
+.item.active.item.not-selectable,
+.item.not-selectable:active {
+  color: var(--item-is-not-selectable-color, #999);
+  background: transparent;
+}
+
+.svelte-select .selected-item {
+  margin: 0.5rem
+}
+/* multiselect */
+
+.multi-item {
+  background: var(--tag-background);
+  color: var(--tag-color);
+  border-radius: var(--tag-radius);
+  height: 1.2rem;
+  margin: 0.2rem 0.2rem;
+  line-height: 1.2rem;
+  display: flex;
+  cursor: default;
+  padding: var(--multi-item-padding, 0 5px);
+  overflow: hidden;
+  gap: var(--multi-item-gap, 4px);
+  outline-offset: -1px;
+}
+.multi-item input{
+  width: 100%;
+}
+.multi-item.disabled:hover {
+  background: var(--multi-item-disabled-hover-bg, #ebedef);
+  color: var(--multi-item-disabled-hover-color, #c1c6cc);
+}
+.multi-item-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.multi-item-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  --clear-icon-color: var(--multi-item-clear-icon-color, #000);
+}
+.multi-item.active {
+  outline: var(--multi-item-active-outline, 1px solid #006fe8);
+}
+
 
 /* entry list */
 #smart-toggl-tracker-timer .day {

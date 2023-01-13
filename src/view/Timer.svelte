@@ -1,7 +1,7 @@
 <script>
   import { onDestroy } from 'svelte';
-  // import Select from 'svelte-select/no-styles/Select.svelte';
-  import Select from 'svelte-select';
+  import Select from 'svelte-select/no-styles/Select.svelte';
+  // import Select from 'svelte-select';
   import { is_offline, connect, projects, tags, entries, sync, token, saveNewEntry, saveOldEntry, stopTogglTimer, is_debug} from '../lib/toggl';
   import { formatTime, caculateDuration} from '../lib/tool';
   import { moment } from "obsidian";
@@ -129,7 +129,6 @@
     await sync();
   }
   async function editEntry(entry) {
-    console.log('new entry: ' , entry);
     description = entry.description ? entry.description : '';
     select_project = entry.project_id ? $projects.find(p => p.id == entry.project_id) : undefined;
     select_tags = entry.tags ? entry.tags : [];
@@ -249,8 +248,16 @@
             bind:value={select_project}
             label="name"
             itemId="id"
+            showChevron="true"
             placeholder="Select a project"
-          ></Select>
+          >
+            <div slot="selection" let:selection let:index>
+              <span style={`color:${selection.color}`}>● {selection.name}</span>
+            </div>
+            <div slot="item" let:item let:index>
+              <span style={`color:${item.color}`}>● {item.name}</span>
+            </div>
+          </Select>
         </div>
         <div class="space-bottom">
           <Select
@@ -284,11 +291,10 @@
       {/if}
       <div style="display:flex;margin-top: 1rem">
         {#if !is_loading}
-          <button class="btn" on:click={syncData}>Sync</button>
+          <button class="btn w-100" on:click={syncData}>Sync</button>
         {:else}
           <span>同步中...</span>
         {/if}
-        <button class="btn" on:click={logout}>Logout</button>
       </div>
 
       <!-- 除錯訊息區 -->
@@ -374,40 +380,4 @@
   .entry:hover .btn-play {
     opacity: 1;
   }
-  :global(.select-field) {
-    background: var(--background-modifier-form-field)!important;
-    --multi-item-clear-icon-color: white;
-    --item-hover-color: black;
-  }
-  :global(.select-field .multi-item) {
-    background: var(--background-modifier-form-field)!important;
-  }
-  :global(.select-field .svelte-select-list) {
-    background: var(--background-modifier-form-field)!important;
-  }
-  :global(.select-field input:focus) {
-    box-shadow: none;
-  }
-  /*:global(.select-field input) {
-    width: 100%;
-  }
-  :global(.select-field .svelte-select-list) {
-      box-shadow: 0 2px 3px 0 rgba(44, 62, 80, 0.24);
-      max-height: 50vh;
-      overflow-y: auto;
-      background: var(--primary-bg-color);
-      position:  absolute;
-      z-index: 2;
-    }
-  :global(.select-field .a11y-text) {
-    z-index: 9999;
-    border: 0px;
-    clip: rect(1px, 1px, 1px, 1px);
-    height: 1px;
-    width: 1px;
-    position: absolute;
-    overflow: hidden;
-    padding: 0px;
-    white-space: nowrap;
-  }*/
 </style>

@@ -1,20 +1,11 @@
-import { App, Editor, CachedMetadata, TFile, Menu, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, requestUrl, request } from 'obsidian';
+import { Editor, CachedMetadata, TFile, Menu, MarkdownView, Modal, Notice, Plugin, Setting } from 'obsidian';
 
 import { TimerView, VIEW_TYPE_TIMER } from "./view";
-// Remember to rename these classes and interfaces!
+import { SmartTogglTrackerPluginSettings, MySettingTab, DEFAULT_SETTINGS } from "./setting";
 import { SuggestEntriesModal } from "./SuggestModal"
 
-import { sync as SyncToggl, stopTogglTimer, checkCandidate } from "./lib/toggl";
+import { sync as SyncToggl, stopTogglTimer, checkCandidate, is_debug, token } from "./lib/toggl";
 
-interface SmartTogglTrackerPluginSettings {
-  mySetting: string;
-  toggl_debug: boolean;
-}
-
-const DEFAULT_SETTINGS: SmartTogglTrackerPluginSettings = {
-  mySetting: 'default',
-  toggl_debug: false,
-}
 
 export default class SmartTogglTrackerPlugin extends Plugin {
   settings: SmartTogglTrackerPluginSettings;
@@ -88,6 +79,7 @@ export default class SmartTogglTrackerPlugin extends Plugin {
     );
 
     // This adds a settings tab so the user can configure various aspects of the plugin
+    await this.loadSettings();
     this.addSettingTab(new MySettingTab(this.app, this));
 
     // If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
@@ -119,6 +111,8 @@ export default class SmartTogglTrackerPlugin extends Plugin {
 
   async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    token.set(this.settings.token);
+    is_debug.set(this.settings.debug_mode);
   }
 
   async saveSettings() {
@@ -238,7 +232,6 @@ export default class SmartTogglTrackerPlugin extends Plugin {
         }
       }
     }
-    console.log('description', description);
 
     return {
       description,
@@ -248,56 +241,11 @@ export default class SmartTogglTrackerPlugin extends Plugin {
   }
 }
 
-// 外掛設定頁
-class MySettingTab extends PluginSettingTab {
-  plugin: SmartTogglTrackerPlugin;
-
-  constructor(app: App, plugin: SmartTogglTrackerPlugin) {
-    super(app, plugin);
-    this.plugin = plugin;
-  }
-
-  display(): void {
-    const { containerEl } = this;
-
-    containerEl.empty();
-
-    containerEl.createEl('h2', { text: 'Settings for my awesome plugin.' });
-
-    new Setting(containerEl)
-      .setName('Toggl Token')
-      .setDesc('Toggl User Token')
-      .addText(text => text
-        .setPlaceholder('Enter your secret')
-        .setValue(this.plugin.settings.mySetting)
-        .onChange(async (value) => {
-          console.log('Secret: ' + value);
-          this.plugin.settings.mySetting = value;
-          await this.plugin.saveSettings();
-        }));
-
-    // new Setting(containerEl)
-    //   .setName('Setting #1')
-    //   .setDesc('It\'s a secret')
-    //   .addText(text => text
-    //     .setPlaceholder('Enter your secret')
-    //     .setValue(this.plugin.settings.mySetting)
-    //     .onChange(async (value) => {
-    //       console.log('Secret: ' + value);
-    //       this.plugin.settings.mySetting = value;
-    //       await this.plugin.saveSettings();
-    //     }));
-  }
-}
-
 
 // 清理條目
 function cleanContent(content: string) {
   let result = content.trim();
   if (result.startsWith('- [ ] ')) result = result.split('- [ ] ')[1]
   else if (result.startsWith('- ')) result = result.split('- ')[1]
-  console.log('項目清理：原始', content);
-  console.log('項目清理：清理後', result);
-
   return result;
 }
