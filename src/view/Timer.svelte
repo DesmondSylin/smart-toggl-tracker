@@ -18,7 +18,7 @@
   let editing_entry_id = 0;
   let timer_id = 0;
   let all_week_duration = 0;
-  let is_loading = false;
+  let is_loading = 2;
   let show_days = 2;
 
   // 時間列表
@@ -118,7 +118,7 @@
     } else {
       await saveNewEntry(payload);
     }
-    sync();
+    syncData();
     resetFields();
     is_editing = false;
   }
@@ -164,7 +164,7 @@
       project_id: entry.pid || entry.project_id,
       tags: entry.tags
     };
-    return saveNewEntry(payload).then(() => sync());
+    return saveNewEntry(payload).then(() => syncData());
   }
 
   function cancalTimerEditing() {
@@ -176,12 +176,10 @@
   function checkToken() {
     connect(new_token);
   }
-  function logout() {
-    token.set("");
-  }
   function syncData() {
-    is_loading = true;
-    sync().finally(() => is_loading = false);
+    is_loading = 0;
+    setTimeout(() => is_loading += 1, 1500);
+    sync().finally(() => is_loading += 1);
   }
 </script>
 
@@ -292,7 +290,7 @@
       </div>
       {/if}
       <div style="display:flex;margin-top: 1rem">
-        {#if !is_loading}
+        {#if is_loading >= 2}
           <button class="w-100" on:click={syncData}>Sync</button>
         {:else}
           <span>同步中...</span>
@@ -312,7 +310,7 @@
       <hr />
       <div class="list-entries">
         {#if days?.length > 0}
-          <div>THIS WEEK: {formatTime(all_week_duration, false)}</div>
+          <div>THIS WEEK: {formatTime(all_week_duration, false)} Days: {entries_daylist.length}</div>
           {#each entries_daylist as day}
             <div class="day">
               <div class="day-detail">

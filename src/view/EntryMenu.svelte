@@ -29,7 +29,13 @@
     }
 
     function start(entry) {
-        saveNewEntry(entry).then(() => sync());
+        const payload = {
+            description: entry.description,
+            project_id: entry.project_id,
+            tags: entry.tags,
+            workspace_id: entry.workspace_id ? entry.workspace_id : null
+        }
+        saveNewEntry(payload).then(() => sync());
         dispatch('selected', entry);
     }
 

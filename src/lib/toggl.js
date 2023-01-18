@@ -161,7 +161,7 @@ export function saveNewEntry(entry) {
   /**
    * 啟動計時器
    */
-  const this_workspace_id = get(workspace_id);
+  const this_workspace_id = entry.workspace_id ? entry.workspace_id : get(workspace_id);
   const payload = {
     'description': entry.description,
     'start': entry?.start ? entry.start : '',
