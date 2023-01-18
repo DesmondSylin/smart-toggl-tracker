@@ -78,6 +78,7 @@ If your plugin does not need CSS, delete this file.
 /* entry editing */
 #smart-toggl-tracker-timer .timer-editing {
   margin-top: 1rem;
+  margin-bottom: 1rem;
   padding: 1rem;
   background-color: var(--background-primary);
 }
@@ -95,7 +96,7 @@ If your plugin does not need CSS, delete this file.
 
 
 /* entry selecting */
-.svelte-select {
+#smart-toggl-tracker-timer .svelte-select {
   position: relative;
   display: flex;
   align-items: stretch;
@@ -104,15 +105,15 @@ If your plugin does not need CSS, delete this file.
   border-radius: var(--input-radius);
   border: var(--input-border-width) solid var(--background-modifier-border);
 }
-.svelte-select input{
+#smart-toggl-tracker-timer .svelte-select input{
   border: 0;
   width: auto!important;
   background: transparent;
 }
-.svelte-select input:focus{
+#smart-toggl-tracker-timer .svelte-select input:focus{
   box-shadow: none;
 }
-.svelte-select .value-container {
+#smart-toggl-tracker-timer .svelte-select .value-container {
   display: flex;
   flex: 1 1 0%;
   flex-wrap: wrap;
@@ -122,18 +123,18 @@ If your plugin does not need CSS, delete this file.
   align-self: stretch;
 
 }
-.svelte-select .prepend,
-.svelte-select .indicators {
+#smart-toggl-tracker-timer .svelte-select .prepend,
+#smart-toggl-tracker-timer .svelte-select .indicators {
     display: flex;
     flex-shrink: 0;
     align-items: center;
 }
-.svelte-select .icon {
+#smart-toggl-tracker-timer .svelte-select .icon {
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.svelte-select .clear-select {
+#smart-toggl-tracker-timer .svelte-select .clear-select {
   all: unset;
   display: flex;
   align-items: center;
@@ -144,20 +145,20 @@ If your plugin does not need CSS, delete this file.
   pointer-events: all;
   flex-shrink: 0;
 }
-.svelte-select .clear-select:focus {
+#smart-toggl-tracker-timer .svelte-select .clear-select:focus {
   outline: var(--clear-select-focus-outline, 1px solid #006fe8);
 }
-.svelte-select .chevron {
+#smart-toggl-tracker-timer .svelte-select .chevron {
   width: 2rem;
   height: 1rem;
   border: 0 0 0 1px solid #d8dbdf;
   flex-shrink: 0;
 }
 
-.svelte-select .a11y-text {
+#smart-toggl-tracker-timer .svelte-select .a11y-text {
   display: none;
 }
-.svelte-select .svelte-select-list {
+#smart-toggl-tracker-timer .svelte-select .svelte-select-list {
   /* box-shadow: var(--list-shadow, 0 2px 3px 0 rgba(44, 62, 80, 0.24)); */
   border-radius: 4px;
   max-height: 50vh;
@@ -167,7 +168,7 @@ If your plugin does not need CSS, delete this file.
   z-index: 2;
   border: var(--background-modifier-border-focus);
 }
-.item {
+#smart-toggl-tracker-timer .item {
   cursor: default;
   height: var(--item-height, var(--height, 42px));
   line-height: var(--item-line-height, var(--height, 42px));
@@ -180,33 +181,33 @@ If your plugin does not need CSS, delete this file.
   align-items: center;
   width: 100%;
 }
-.item.group-item {
+#smart-toggl-tracker-timer .item.group-item {
   padding-left: var(--group-item-padding-left, 40px);
 }
-.item.active {
+#smart-toggl-tracker-timer .item.active {
   background: var(--interactive-hover);
 }
-.item.first {
+#smart-toggl-tracker-timer .item.first {
   border-radius: var(--item-first-border-radius, 4px 4px 0 0);
 }
-.item.hover:not(.active) {
+#smart-toggl-tracker-timer .item.hover:not(.active) {
   background: var(--interactive-hover);
   cursor: pointer;
 }
-.item.not-selectable,
-.item.hover.item.not-selectable,
-.item.active.item.not-selectable,
-.item.not-selectable:active {
+#smart-toggl-tracker-timer .item.not-selectable,
+#smart-toggl-tracker-timer .item.hover.item.not-selectable,
+#smart-toggl-tracker-timer .item.active.item.not-selectable,
+#smart-toggl-tracker-timer .item.not-selectable:active {
   color: var(--item-is-not-selectable-color, #999);
   background: transparent;
 }
 
-.svelte-select .selected-item {
+#smart-toggl-tracker-timer .svelte-select .selected-item {
   margin: 0.5rem
 }
-/* multiselect */
 
-.multi-item {
+/* multiselect */
+#smart-toggl-tracker-timer .multi-item {
   background: var(--tag-background);
   color: var(--tag-color);
   border-radius: var(--tag-radius);
@@ -220,25 +221,25 @@ If your plugin does not need CSS, delete this file.
   gap: var(--multi-item-gap, 4px);
   outline-offset: -1px;
 }
-.multi-item input{
+#smart-toggl-tracker-timer .multi-item input{
   width: 100%;
 }
-.multi-item.disabled:hover {
+#smart-toggl-tracker-timer .multi-item.disabled:hover {
   background: var(--multi-item-disabled-hover-bg, #ebedef);
   color: var(--multi-item-disabled-hover-color, #c1c6cc);
 }
-.multi-item-text {
+#smart-toggl-tracker-timer .multi-item-text {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.multi-item-clear {
+#smart-toggl-tracker-timer .multi-item-clear {
   display: flex;
   align-items: center;
   justify-content: center;
   --clear-icon-color: var(--multi-item-clear-icon-color, #000);
 }
-.multi-item.active {
+#smart-toggl-tracker-timer .multi-item.active {
   outline: var(--multi-item-active-outline, 1px solid #006fe8);
 }
 
@@ -276,4 +277,27 @@ If your plugin does not need CSS, delete this file.
   padding: var(--tag-padding-y) var(--tag-padding-x);
   line-height: 1;
   margin-right: 0.5rem;
+}
+
+/* loading */
+#smart-toggl-tracker-timer .loading {
+  width:1rem;
+  height:1rem;
+  background:var(--interactive-accent);
+  box-shadow:0 0 60px 15px var(--interactive-accent);
+  transform: translate(-80px);
+  clip-path:inset(0);
+  animation:
+    timer-loading-1 0.5s ease-in-out infinite alternate,
+    timer-loading-2 1s   ease-in-out infinite;
+}
+
+@keyframes timer-loading-1 {
+  100% {transform:translateX(80px)}
+}
+
+@keyframes timer-loading-2 {
+   33% {clip-path:inset(0 0 0 -100px)}
+   50% {clip-path:inset(0 0 0 0)     }
+   83% {clip-path:inset(0 -100px 0 0)}
 }

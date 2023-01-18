@@ -62,6 +62,7 @@
   }
 
   function makeDayEntries(entries) {
+    all_week_duration = 0;
     const days = [];
     for (const entry of entries) {
       if (!entry?.stop) continue;
@@ -289,11 +290,11 @@
         </div>
       </div>
       {/if}
-      <div style="display:flex;margin-top: 1rem">
+      <div style="display:flex;justify-content:center">
         {#if is_loading >= 2}
           <button class="w-100" on:click={syncData}>Sync</button>
         {:else}
-          <span>同步中...</span>
+          <div class="loading" style="padding: 0.5rem 0"></div>
         {/if}
       </div>
 
@@ -310,7 +311,7 @@
       <hr />
       <div class="list-entries">
         {#if days?.length > 0}
-          <div>THIS WEEK: {formatTime(all_week_duration, false)} Days: {entries_daylist.length}</div>
+          <div>THIS WEEK: {formatTime(all_week_duration, false)}</div>
           {#each entries_daylist as day}
             <div class="day">
               <div class="day-detail">
