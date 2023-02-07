@@ -1,9 +1,9 @@
 {
 	"id": "smart-toggl-tracker",
 	"name": "Smart Toggl Tracker",
-	"version": "0.1.5",
+	"version": "0.1.6",
 	"minAppVersion": "0.16.0",
-	"description": "A way to help you tracking your time spending by Toggl Service",
+	"description": "A easy way to help you tracking your time spending by Toggl Service",
 	"author": "Desmond Sylin",
 	"authorUrl": "https://github.com/DesmondSylin/smart-toggl-tracker",
 	"isDesktopOnly": false

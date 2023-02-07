@@ -173,7 +173,10 @@ export default class SmartTogglTrackerPlugin extends Plugin {
 
     // 候選Project
     // 檔名
-    if (file?.basename) candidate_projects.push(file.basename);
+    if (file?.basename) {
+      candidate_projects.push(file.basename);
+      if (!description) description = file.basename;
+    }
     // 標題處理
     if (metadata.headings && metadata.headings.length > 0) {
       let max_level = 6;
