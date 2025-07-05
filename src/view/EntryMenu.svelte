@@ -1,11 +1,13 @@
 <script>
     import { basename } from 'path';
-import { createEventDispatcher } from 'svelte';
+    import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
 
     import { saveNewEntry, sync, is_debug } from '../lib/toggl';
     import EntryMenuItem from './EntryMenuItem.svelte';
-    const file = app.workspace.getActiveFile();
+
+    export let app; // 接收從父元件傳來的 app 實例
+    $: file = app ? app.workspace.getActiveFile() : null;
 
     // export let modal;
     export let exist_entries = [];
@@ -17,7 +19,7 @@ import { createEventDispatcher } from 'svelte';
     let use_tag = true;
     $: suggested_tags = use_tag ? exist_tags : [];
     $: no_project_entry = {
-        description: use_filename ? file.basename : description,
+        description: use_filename && file ? file.basename : description,
         tags: suggested_tags,
     }
     $: suggested_entries = makeSuggestion(exist_projects, suggested_tags, use_filename);
@@ -26,7 +28,7 @@ import { createEventDispatcher } from 'svelte';
         console.log(file);
         return projects.map(p => {
             return {
-                description: use_filename ? file.basename : description,
+                description: use_filename && file ? file.basename : description,
                 project_id: p.id,
                 tags,
             }
@@ -57,7 +59,7 @@ import { createEventDispatcher } from 'svelte';
     {/if}
     <h2>Recommand:</h2>
     <div class="checkline">
-        {#if file.basename !== description}
+        {#if file && file.basename !== description}
         <div class="check"><input type="checkbox" bind:checked={use_filename} /> Use filename?</div>
         {/if}
         <div class="check"><input type="checkbox" bind:checked={use_tag} /> Use tag?</div>

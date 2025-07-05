@@ -99,7 +99,7 @@ export default class SmartTogglTrackerPlugin extends Plugin {
   async activateView() {
     this.app.workspace.detachLeavesOfType(VIEW_TYPE_TIMER);
 
-    await this.app.workspace.getRightLeaf(false).setViewState({
+    await this.app.workspace?.getRightLeaf(false)?.setViewState({
       type: VIEW_TYPE_TIMER,
       active: true,
     });
@@ -124,7 +124,7 @@ export default class SmartTogglTrackerPlugin extends Plugin {
 		if (this.app.workspace.getLeavesOfType(VIEW_TYPE_TIMER).length) {
 			return;
 		}
-		this.app.workspace.getRightLeaf(false).setViewState({
+		this.app.workspace.getRightLeaf(false)?.setViewState({
 			type: VIEW_TYPE_TIMER
 		});
 	}
@@ -147,7 +147,7 @@ export default class SmartTogglTrackerPlugin extends Plugin {
 
   // 取得候選清單
   getEntryMenu(editor: Editor) {
-    const file = app.workspace.getActiveFile();
+    const file = this.app.workspace.getActiveFile();
     if (!file || !editor) return;
     const metadata = this.app.metadataCache.getCache(file.path);
     if (!metadata) return;

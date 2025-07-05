@@ -1,4 +1,5 @@
 import { App, Modal } from 'obsidian';
+// @ts-ignore
 import EntryMenu from "./view/EntryMenu.svelte";
 
 interface ExistTogglEntry {
@@ -39,13 +40,14 @@ export class SuggestEntriesModal extends Modal {
     this.menu_modal = new EntryMenu({
       target: this.contentEl,
       props: {
+        app: this.app,
         exist_entries: this.exist_toggl_entries,
         exist_projects: this.exist_toggl_projects,
         exist_tags: this.exist_toggl_tags,
         description: this.description
       }
     });
-    this.menu_modal.$on('selected', event => {
+    this.menu_modal.$on('selected', (event: any) => {
       (this.app as any).commands.executeCommandById('smart-toggl-tracker:show-tracker');
       this.close();
     })

@@ -14,7 +14,8 @@ export const is_debug = localStore('', false);
 
 
 const url = 'https://api.track.toggl.com';
-function handleConnectError(err) {
+function handleConnectError(err, payload) {
+  console.log('Connect Error', err, payload);
   if (err?.status) {
     if (err.status == 429) {
       new Notice('Toggl has too many requests')
@@ -49,7 +50,7 @@ async function fetchUrl(payload) {
       is_offline.set(false);
       return res.json
     })
-    .catch(handleConnectError);
+    .catch(error => handleConnectError(error, payload));
 }
 
 
@@ -107,7 +108,7 @@ export function getClients() {
 
 export function getWorkspaces() {
   return fetchUrl({
-    url: `${url}/api/v9/me/all_workspaces`,
+    url: `${url}/api/v9/me/workspaces`,
     method: 'GET'
   }).then(raw_workspaces => {
     workspaces.set(raw_workspaces);

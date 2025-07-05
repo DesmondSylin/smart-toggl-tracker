@@ -1,5 +1,6 @@
 import { ItemView, WorkspaceLeaf } from "obsidian";
 
+// @ts-ignore
 import Timer from "./view/Timer.svelte";
 
 export const VIEW_TYPE_TIMER = "toggl-timer-view";

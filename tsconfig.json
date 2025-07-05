@@ -18,6 +18,11 @@
   },
   "include": [
     "**/*.ts",
-    "src/lib/toggl.js"
+    // "src/lib/toggl.js"
+  ],
+  "exclude": [
+    "src/lib/store.js",
+    "src/lib/toggl.js",
+    "src/lib/tool.js"
   ]
 }
