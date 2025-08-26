@@ -9,20 +9,20 @@
     "importHelpers": true,
     "isolatedModules": true,
     "strictNullChecks": true,
+    "outDir": "./dist",
     "lib": [
       "DOM",
-      "ES5",
-      "ES6",
-      "ES7"
+      "ES2020"
     ]
   },
   "include": [
-    "**/*.ts",
-    // "src/lib/toggl.js"
+    "**/*.ts"
   ],
   "exclude": [
     "src/lib/store.js",
     "src/lib/toggl.js",
-    "src/lib/tool.js"
+    "src/lib/tool.js",
+    "node_modules",
+    "dist"
   ]
 }

@@ -21,19 +21,22 @@ export class SuggestEntriesModal extends Modal {
   exist_toggl_projects: ExistTogglProject[] = [];
   exist_toggl_tags: string[] = [];
   description: string = "";
+  should_activate_view: boolean = false;
 
   constructor(
     app: App,
     exist_toggl_entries: ExistTogglEntry[],
     exist_toggl_projects: ExistTogglProject[],
     exist_toggl_tags: string[],
-    description: string
+    description: string,
+    should_activate_view: boolean = false
   ) {
     super(app);
     this.exist_toggl_entries = exist_toggl_entries;
     this.exist_toggl_projects = exist_toggl_projects;
     this.exist_toggl_tags = exist_toggl_tags;
     this.description = description;
+    this.should_activate_view = should_activate_view;
   }
 
   onOpen(): void {

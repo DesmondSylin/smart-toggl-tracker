@@ -4,12 +4,16 @@ import { TimerView, VIEW_TYPE_TIMER } from "./view";
 import { SmartTogglTrackerPluginSettings, MySettingTab, DEFAULT_SETTINGS } from "./setting";
 import { SuggestEntriesModal } from "./SuggestModal"
 
-import { sync as SyncToggl, stopTogglTimer, checkCandidate, is_debug, token } from "./lib/toggl";
+import { sync as SyncToggl, stopTogglTimer, checkCandidate, is_debug, token, entries, startTrackingByAPI } from "./lib/toggl";
+import { formatTime } from "./lib/tool";
+import { get } from 'svelte/store';
 
 
 export default class SmartTogglTrackerPlugin extends Plugin {
   settings: SmartTogglTrackerPluginSettings;
   TimerView: TimerView;
+  statusBarItem: HTMLElement | null = null;
+  statusBarUpdateInterval: number | null = null;
 
   async onload() {
     this.registerView(
@@ -17,10 +21,10 @@ export default class SmartTogglTrackerPlugin extends Plugin {
       (leaf) => (this.TimerView = new TimerView(leaf))
     );
     if (this.app.workspace.layoutReady) {
-			this.initLeaf();
-		} else {
-			this.app.workspace.onLayoutReady(this.initLeaf.bind(this));
-		}
+      this.initLeaf();
+    } else {
+      this.app.workspace.onLayoutReady(this.initLeaf.bind(this));
+    }
 
     this.addCommand({
       id: 'show-tracker',
@@ -66,14 +70,14 @@ export default class SmartTogglTrackerPlugin extends Plugin {
       this.app.workspace.on("editor-menu", (menu) => {
         menu.addItem((item) => {
           item.setTitle('Start Timer')
-          .setIcon('timer')
-          .onClick(() => {
-            const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-            if (view) {
-              const editor = view.editor;
-              this.startEntrySelection(editor);
-            }
-          });
+            .setIcon('timer')
+            .onClick(() => {
+              const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+              if (view) {
+                const editor = view.editor;
+                this.startEntrySelection(editor);
+              }
+            });
         });
       })
     );
@@ -81,6 +85,11 @@ export default class SmartTogglTrackerPlugin extends Plugin {
     // This adds a settings tab so the user can configure various aspects of the plugin
     await this.loadSettings();
     this.addSettingTab(new MySettingTab(this.app, this));
+
+    // 僅在桌面版初始化狀態列
+    if (!(this.app as any).isMobile) {
+      this.initStatusBar();
+    }
 
     // If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
     // Using this function will automatically remove the event listener when this plugin is disabled.
@@ -94,6 +103,12 @@ export default class SmartTogglTrackerPlugin extends Plugin {
 
   onunload() {
     this.app.workspace.detachLeavesOfType(VIEW_TYPE_TIMER);
+
+    // 清理狀態列
+    if (this.statusBarUpdateInterval) {
+      window.clearInterval(this.statusBarUpdateInterval);
+      this.statusBarUpdateInterval = null;
+    }
   }
 
   async activateView() {
@@ -113,7 +128,7 @@ export default class SmartTogglTrackerPlugin extends Plugin {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
     token.set(this.settings.token);
     is_debug.set(this.settings.debug_mode);
-    if (!this.settings.debug_mode)  SyncToggl();
+    if (!this.settings.debug_mode) SyncToggl();
   }
 
   async saveSettings() {
@@ -121,19 +136,20 @@ export default class SmartTogglTrackerPlugin extends Plugin {
   }
 
   initLeaf(): void {
-		if (this.app.workspace.getLeavesOfType(VIEW_TYPE_TIMER).length) {
-			return;
-		}
-		this.app.workspace.getRightLeaf(false)?.setViewState({
-			type: VIEW_TYPE_TIMER
-		});
-	}
+    if (this.app.workspace.getLeavesOfType(VIEW_TYPE_TIMER).length) {
+      return;
+    }
+    this.app.workspace.getRightLeaf(false)?.setViewState({
+      type: VIEW_TYPE_TIMER
+    });
+  }
 
   // 啟動候選清單
-  startEntrySelection(editor: Editor) {
+  startEntrySelection(editor: Editor, should_activate_view: boolean = false) {
     const entry_candidates = this.getEntryMenu(editor);
     if (!entry_candidates) return;
 
+    //@ts-ignore
     const exist_data = checkCandidate(entry_candidates);
 
     new SuggestEntriesModal(
@@ -142,6 +158,7 @@ export default class SmartTogglTrackerPlugin extends Plugin {
       exist_data.exist_toggl_projects,
       entry_candidates.candidate_tags,
       entry_candidates.description,
+      should_activate_view
     ).open();
   }
 
@@ -180,7 +197,7 @@ export default class SmartTogglTrackerPlugin extends Plugin {
     // 標題處理
     if (metadata.headings && metadata.headings.length > 0) {
       let max_level = 6;
-      for (let index = metadata.headings.length - 1 ; index >= 0; index--) {
+      for (let index = metadata.headings.length - 1; index >= 0; index--) {
         const heading = metadata.headings[index];
 
         if (heading.position.start.line >= this_line) continue;
@@ -242,6 +259,60 @@ export default class SmartTogglTrackerPlugin extends Plugin {
       candidate_projects: candidate_projects,
       candidate_tags: tags
     }
+  }
+
+  // 初始化狀態列
+  initStatusBar(): void {
+    this.statusBarItem = this.addStatusBarItem();
+    this.statusBarItem.addClass('smart-toggl-tracker-status');
+
+    // 設定點擊事件
+    this.statusBarItem.addEventListener('click', () => {
+      (this.app as any).commands.executeCommandById('smart-toggl-tracker:open-timer-panel');
+    });
+
+    // 初始化狀態列內容
+    this.updateStatusBar();
+
+    // 設定定時更新（每秒更新一次）
+    this.statusBarUpdateInterval = window.setInterval(() => {
+      this.updateStatusBar();
+    }, 1000);
+  }
+
+  // 更新狀態列顯示
+  updateStatusBar(): void {
+    if (!this.statusBarItem) return;
+
+    // 取得目前運行的計時記錄
+    const currentEntries = get(entries);
+    const runningEntry = currentEntries.find((entry: any) => !entry?.stop);
+
+    if (runningEntry) {
+      // 有運行中的計時器
+      const startTime = new Date(runningEntry.start);
+      const now = new Date();
+      const elapsed = now.getTime() - startTime.getTime();
+      const timeString = formatTime(elapsed);
+
+      // 限制任務名稱長度為15字元
+      let taskName = runningEntry.description || '(no description)';
+      if (taskName.length > 15) {
+        taskName = taskName.substring(0, 12) + '...';
+      }
+
+      this.statusBarItem.setText(`⏱️ ${taskName} ${timeString}`);
+      this.statusBarItem.setAttribute('aria-label', `Toggl timer running: ${runningEntry.description || '(no description)'} - ${timeString}`);
+    } else {
+      // 沒有運行中的計時器
+      this.statusBarItem.setText('⏱️');
+      this.statusBarItem.setAttribute('aria-label', 'Click to open Toggl timer panel');
+    }
+  }
+
+  // 公開 API 供其他外掛呼叫
+  async startTrackingByAPI(description: string, project: string, tags: string[] = []): Promise<{ok: boolean}> {
+    return await startTrackingByAPI(description, project, tags);
   }
 }
 

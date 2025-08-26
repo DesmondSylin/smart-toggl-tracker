@@ -287,3 +287,66 @@ export function logout() {
   entries.set([]);
   workspace_id.set(0);
 }
+
+/**
+ * 根據專案名稱搜尋專案，返回匹配的專案ID
+ * 如果有多個匹配，返回最後一個
+ */
+export function findProjectByName(projectName) {
+  if (!projectName) return null;
+
+  const currentProjects = get(projects);
+  const matchedProjects = currentProjects.filter(project =>
+    project.name === projectName
+  );
+
+  // 如果有匹配，返回最後一個
+  if (matchedProjects.length > 0) {
+    return matchedProjects[matchedProjects.length - 1].id;
+  }
+
+  return null;
+}
+
+/**
+ * API 介面供其他外掛呼叫開始計時
+ * @param {string} description - 任務描述
+ * @param {string} project - 專案名稱
+ * @param {string[]} tags - 標籤陣列
+ * @returns {Promise<{ok: boolean}>} 成功或失敗狀態
+ */
+export async function startTrackingByAPI(description, project, tags = []) {
+  try {
+    // 檢查 token 是否已設定
+    const currentToken = get(token);
+    if (!currentToken) {
+      console.error('Toggl API Token not set');
+      return { ok: false };
+    }
+
+    // 建立計時記錄的資料
+    const payload = {
+      description: description || '',
+      tags: Array.isArray(tags) ? tags : []
+    };
+
+    // 如果有專案名稱，嘗試找到對應的專案ID
+    if (project) {
+      const projectId = findProjectByName(project);
+      if (projectId) {
+        payload.project_id = projectId;
+      }
+    }
+
+    // 開始計時
+    await saveNewEntry(payload);
+
+    // 同步資料以更新本地狀態
+    sync();
+
+    return { ok: true };
+  } catch (error) {
+    console.error('startTrackingByAPI failed:', error);
+    return { ok: false };
+  }
+}
